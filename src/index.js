@@ -8,6 +8,9 @@ import './index.css';
 // view this at: http://localhost:3000/
 // npm start in terminal in project folder to run
 
+// a little bit of a git history here, should have done it form the start
+// - does show the past hisotry of moves before and after, could be worth checking out
+
 
 // Taken from https://reactjs.org/tutorial/tutorial.html
 // NOTES
@@ -55,6 +58,12 @@ import './index.css';
 
 // TIME TRAVEL /SHOWING PAST MOVES
 // https://reactjs.org/tutorial/tutorial.html#showing-the-past-moves
+// - use map()
+// - keep track of components in between state changes with keys
+// - recommended to assign proper keys when building dynamic lists
+//  - if proper keys not assigned, uses array index by default
+//  - keys only need to be unique between components and siblings
+// - stepNumber: 0, in Game constructor
 
 
 
@@ -133,14 +142,17 @@ class Game extends React.Component {
           history: [{
             squares: Array(9).fill(null),
           }],
+          stepNumber: 0, // first step in history = 0
           xIsNext: true,
         };
     }
 
 
-    // handleClick previously in Board component:
+    // handleClick previously in Board component. handle clicks from squares:
     handleClick(i) {
-        const history = this.state.history;
+        // before time travel, was 'this.state.history'
+        // - now keeps track with stepNumber
+        const history = this.state.history.slice(0, this.state.stepNumber + 1);
         const current = history[history.length - 1];
         const squares = current.squares.slice();
 
@@ -157,20 +169,32 @@ class Game extends React.Component {
             history: history.concat([{
                 squares: squares,
             }]),
-            squares : squares,
+            stepNumber : history.length, // keep track of stepNumber after each click
             xIsNext : !this.state.xIsNext,
         }); 
     }
 
 
+
+    // jumpTo method - for history / time travel
+    jumpTo(step) {
+        this.setState({
+            stepNumber: step, // reflects the move currently displayed to the user
+            xIsNext: (step % 2) === 0, // if step number is even, xIsNext = true
+        })
+    }
+
+
+
     
     // render Game component
     render() {
-
         // history
         // - used to calculate winner
         const history = this.state.history;
-        const current = history[history.length - 1];
+        // before time travel, was history[history.length - 1]
+        // - now renders currently selected move according to stepNumber
+        const current = history[this.state.stepNumber];
         const winner = calculateWinner(current.squares);
 
         let status;
@@ -179,6 +203,21 @@ class Game extends React.Component {
         } else {
             status = 'Next player: ' + (this.state.xIsNext ? 'X' : 'O');
         }
+
+        // map over moves
+        const moves = history.map((step, move) => {
+            // if there is a move, go to the move, else start over
+            const desc = move ? 'Go to move #' + move : 'Go to game start';
+            // for each move create an li, with the above text to go to each move
+            // - run jumpTo on each
+            // - use move index as key
+            return (
+                <li key={move}>
+                    <button onClick={ () => this.jumpTo(move)}>{desc}</button>
+                </li>
+            );
+
+        });
         
         // board shows state of the game from history
         // status shows the winner
@@ -192,7 +231,8 @@ class Game extends React.Component {
             </div>
             <div className="game-info">
                 <div>{status}</div>
-                <ol>{/* TODO */}</ol>
+                {/* add time travel - view history of moves in a game */}
+                <ol>{moves}</ol>
             </div>
         </div>
         );
