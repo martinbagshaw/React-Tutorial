@@ -125,6 +125,18 @@ class Board extends React.Component {
 
 
 
+// __________
+/* extra bits:
+1- Display the location for each move in the format (col, row) in the move history list.
+2- Bold the currently selected item in the move list.
+    - if stepNumber = key
+
+3- Rewrite Board to use two loops to make the squares instead of hardcoding them.
+4- Add a toggle button that lets you sort the moves in either ascending or descending order.
+5- When someone wins, highlight the three squares that caused the win.
+6- When no one wins, display a message about the result being a draw
+*/
+
 
 
 
@@ -211,8 +223,12 @@ class Game extends React.Component {
             // for each move create an li, with the above text to go to each move
             // - run jumpTo on each
             // - use move index as key
+
+            // bold current move
+            // {move=this.state.stepNumber ? className="bold" : ''}
+            
             return (
-                <li key={move}>
+                <li key={move} className={current ? "bold" : ''}>
                     <button onClick={ () => this.jumpTo(move)}>{desc}</button>
                 </li>
             );
