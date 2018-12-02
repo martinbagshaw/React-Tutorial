@@ -92,50 +92,123 @@ class Board extends React.Component {
     renderSquare(i) {
         return (
             <Square
+                key={i}
                 value={this.props.squares[i]}
                 onClick={() => this.props.onClick(i)}
             />
-        );
+        )
     };
 
-    // render rows
+
+
+    // 3. rewrite Board to use two loops to output squares
+
+
+    // create a render function that will be called later with return
+    // - this takes in rows and columns as arguments
+    renderBoard(rows, cols) {
+
+        // board is an empty array
+        const board = [];
+        // create a counter;
+        let counter = 0;
+
+        // process rows in outer loop
+        for (let i = 0; i < rows; i++) {
+
+            // columns = empty array
+            const columns = [];
+            for (let c = 0; c < cols; c++) {
+                // render individual squares using counter
+                columns.push(this.renderSquare(counter++));
+            }
+
+            // push squares (in columns), with the above columns after the squares have been created:
+            // - do this in the JSX React way - no quotations etc
+            board.push(<div key={i} className="board-row">{columns}</div>);
+        }
+
+        return board;
+    }
+
+
+
+
+    // render the final result with a return statement:
     render() {
-        return (
-        <div>
-            <div className="board-row">
-            {this.renderSquare(0)}
-            {this.renderSquare(1)}
-            {this.renderSquare(2)}
+
+        // - render the board with 3 rows and 3 columns
+        return  (
+            <div>
+                {this.renderBoard(3, 3)}
             </div>
-            <div className="board-row">
-            {this.renderSquare(3)}
-            {this.renderSquare(4)}
-            {this.renderSquare(5)}
-            </div>
-            <div className="board-row">
-            {this.renderSquare(6)}
-            {this.renderSquare(7)}
-            {this.renderSquare(8)}
-            </div>
-        </div>
         );
+
+        // old version:
+        // return (
+        // <div>
+        //     <div className="board-row">
+        //     {this.renderSquare(0)}
+        //     {this.renderSquare(1)}
+        //     {this.renderSquare(2)}
+        //     </div>
+        //     <div className="board-row">
+        //     {this.renderSquare(3)}
+        //     {this.renderSquare(4)}
+        //     {this.renderSquare(5)}
+        //     </div>
+        //     <div className="board-row">
+        //     {this.renderSquare(6)}
+        //     {this.renderSquare(7)}
+        //     {this.renderSquare(8)}
+        //     </div>
+        // </div>
+        // );
     }
 }
 
 
 
 
+
+
+
 // __________
 /* extra bits:
-1- Display the location for each move in the format (col, row) in the move history list.
-2- Bold the currently selected item in the move list.
-    - if stepNumber = key
 
-3- Rewrite Board to use two loops to make the squares instead of hardcoding them.
 4- Add a toggle button that lets you sort the moves in either ascending or descending order.
 5- When someone wins, highlight the three squares that caused the win.
 6- When no one wins, display a message about the result being a draw
+
+
+
+DONE:
+1- Display the location for each move in the format (col, row) in the move history list.
+2- Bold the currently selected item in the move list.
+    - if stepNumber = key
+3- Rewrite Board to use two loops to make the squares instead of hardcoding them.    
 */
+
+
+// use the move index to return a string of row and column number
+// - attach this to currentLocation - under history in Game state
+const squareLocation = index => {
+    const locationIndex = {
+        0: 'row: 1, col: 1',
+        1: 'row: 1, col: 2',
+        2: 'row: 1, col: 3',
+        3: 'row: 2, col: 1',
+        4: 'row: 2, col: 2',
+        5: 'row: 2, col: 3',
+        6: 'row: 3, col: 1',
+        7: 'row: 3, col: 2',
+        8: 'row: 3, col: 3',
+    }
+    return locationIndex[index];
+}
+
+
+
 
 
 
@@ -175,12 +248,20 @@ class Game extends React.Component {
 
         // set item to X or O, according to state
         squares[i] = this.state.xIsNext ? 'X' : 'O';
+        
         // set state on board
-        // - save history to state with concat - copies original array, makes it immutable
+        // - stepNumber and xIsNext get overwritten
+        // - history is an array that gets added to after each move
         this.setState({
-            history: history.concat([{
-                squares: squares,
-            }]),
+            // - concat copies the previous array
+            // - squares = matrix of moves. X, 0 and null
+            // - currentLocation passes square index (i) into squareLocation(), to get row, col string
+            history: history.concat([
+                {
+                    squares: squares,
+                    currentLocation: squareLocation(i),
+                }
+            ]),
             stepNumber : history.length, // keep track of stepNumber after each click
             xIsNext : !this.state.xIsNext,
         }); 
@@ -195,7 +276,6 @@ class Game extends React.Component {
             xIsNext: (step % 2) === 0, // if step number is even, xIsNext = true
         })
     }
-
 
 
     
@@ -217,18 +297,30 @@ class Game extends React.Component {
         }
 
         // map over moves
+        // - if there is a move, go to the move, else start over
+        // - step=index, move=value?
         const moves = history.map((step, move) => {
-            // if there is a move, go to the move, else start over
-            const desc = move ? 'Go to move #' + move : 'Go to game start';
+            
+            // 1. location on board of the move - move history list: cols, rows
+            const currentLocation = step.currentLocation ? ` (${step.currentLocation})` : '';
+
+
+
+            // get the square index of clicked item
+            // - Board props
+            // console.log(current.squares);
+            // console.log(this.state);
+            // console.log(history);
+
+            const desc = move ? 'Go to move # ' + move +  currentLocation : 'Go to game start';
             // for each move create an li, with the above text to go to each move
             // - run jumpTo on each
             // - use move index as key
 
-            // bold current move
-            // {move=this.state.stepNumber ? className="bold" : ''}
-            
+            // 2. current move css class
+            // - className={history.length-1 === move ? "current" : ''}
             return (
-                <li key={move} className={current ? "bold" : ''}>
+                <li key={move} className={history.length-1 === move ? "current" : ''}>
                     <button onClick={ () => this.jumpTo(move)}>{desc}</button>
                 </li>
             );

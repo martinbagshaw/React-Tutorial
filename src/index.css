@@ -51,4 +51,19 @@ body {
   .game-info {
     margin-left: 20px;
   }
-  
+
+
+/* added challenges */
+
+/* 2 - bold current item */
+.current {
+  margin-top : 5px;
+}
+.current button {
+  border: 0;
+  padding : 3px 7px;
+  background-color: lightgreen;
+  font-weight: bold;
+  font-size: 1rem;
+  border-radius: 0.25rem;
+}
