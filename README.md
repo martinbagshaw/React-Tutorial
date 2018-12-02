@@ -31,6 +31,7 @@ _not tried the following out (as of 2/12/2018)
 ### Resources that may or may not help:
 - [FreeCodeCamp article](https://medium.freecodecamp.org/all-the-fundamental-react-js-concepts-jammed-into-this-single-medium-article-c83f9b53eac2)
 - [DWYL article](https://github.com/dwyl/learn-react)
+- [Pete Hunt - learning React](https://github.com/petehunt/react-howto)
 
 ---
 
@@ -40,16 +41,14 @@ _not tried the following out (as of 2/12/2018)
 3. There is an emphasis on _always_ creating copies of data, never references, so that data is immutable, and copes can be compared in order to update the document's **state**. This manifests itself in the use of _slice()_ _concat()_, and _map()_.
 4. When splitting components up into separate files, you can **export** function expressions and classes, e.g.
 **Exporting** Components:
-```
-javascript
+```javascript
 class Board extends React.Component {
     // code here
 }
 export default Board;
 ```
 
-```
-javascript
+```javascript
 const Square = props =>  {
     // code here
 }
@@ -57,15 +56,13 @@ export default Square;
 ```
 
 **Importing** Components:
-```
-javascript
+```javascript
 import React from 'react';
 import Square from './square';
 ```
 
 5. Writing html in JSX can be problematic. All components must be closed, for example, when trying to implement point 3, I did something like this to create rows. **This is invalid**:
-```
-javascript
+```javascript
 return (
     </div><div key={i} className="board-row">
 );
@@ -73,8 +70,7 @@ return (
 **To remind myself, this also relates to the empty class attribute on the current item in the move list**
 
 6. All [components have to have keys](https://reactjs.org/docs/lists-and-keys.html#keys) to help React to identify what has changed. For example, in board.js:
-```
-javascript
+```javascript
 board.push(<div key={i} className="board-row">{columns}</div>);
 ```
 
